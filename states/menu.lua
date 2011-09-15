@@ -21,10 +21,10 @@ function Menu:draw()
 end
 
 function Menu:mousepressed(x, y, button)
-	changeState("game")
+	changeState("gamestart")
 end
 
 function Menu:keypressed(key, unicode)
-	changeState("game")
+	changeState("gamestart")
 end
 

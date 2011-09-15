@@ -15,6 +15,7 @@ end
 function loadImage(i)
 	if graphics[i] == nil then
 		graphics[i] = love.graphics.newImage("Graphics/" .. i)
+		graphics[i]:setFilter('nearest', 'nearest')
 	end
 end
 
@@ -22,17 +23,20 @@ require 'states'
 
 function love.load()
 	-- The list of all available states
-	states = states.stateList
+	stateList = states.stateList
 
 	-- The current state, and the name of the next state
 	-- see love.update for how this works
-	state = states.intro
+	state = stateList.intro()
+	print(state)
+	currentState = "intro"
 	nextState = "intro"
 end
 
 function love.update(dt)
-	if states[nextState] ~= state then
-		state = states[nextState]
+	if nextState ~= currentState then
+		state = stateList[nextState]()
+		currentState = nextState
 	end
 	state:update(dt)
 end
