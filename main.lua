@@ -36,6 +36,7 @@ end
 function love.update(dt)
 	if nextState ~= currentState then
 		state = stateList[nextState]()
+		currentState = nextState
 	end
 	state:update(dt)
 end

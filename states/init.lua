@@ -29,9 +29,11 @@ end
 require 'states.intro'
 require 'states.menu'
 require 'states.game'
+require 'states.gamestart'
 
 stateList = {}
 stateList.intro = states.intro.Intro
 stateList.menu = states.menu.Menu
+stateList.gamestart = states.gamestart.GameStart
 stateList.game = states.game.Game
 
