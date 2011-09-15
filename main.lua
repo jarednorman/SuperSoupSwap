@@ -8,6 +8,16 @@ require 'middleclass'
 -- which happens when we require 'states'
 graphics = {}
 
+function changeState(s)
+	nextState = s
+end
+
+function loadImage(i)
+	if graphics[i] == nil then
+		graphics[i] = love.graphics.newImage("Graphics/" .. i)
+	end
+end
+
 require 'states'
 
 function love.load()
@@ -52,8 +62,4 @@ function love.focus(f)
 end
 
 function love.quit()
-end
-
-function changeState(s)
-	nextState = s
 end
