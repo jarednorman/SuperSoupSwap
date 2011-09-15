@@ -1,5 +1,6 @@
 
 require 'middleclass'
+require 'game'
 
 -- A global variable accessible from everyewhere
 -- so we don't have duplicate graphics.
@@ -22,7 +23,7 @@ end
 require 'states'
 
 function love.load()
-	love.graphics.setMode(640, 480, false)
+	love.graphics.setMode(800, 600, false)
 
 	-- The list of all available states
 	stateList = states.stateList
@@ -33,6 +34,7 @@ function love.load()
 	print(state)
 	currentState = "intro"
 	nextState = "intro"
+	g = game.Game()
 end
 
 function love.update(dt)

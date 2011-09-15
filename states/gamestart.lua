@@ -4,7 +4,9 @@ GameStart = states.State:subclass('GameStart')
 
 function GameStart:initialize()
 	love.graphics.setBackgroundColor(25, 34, 41)
+	loadImage('bg.png')
 	self.countDown = 3
+	g:reinitialize()
 end
 
 function GameStart:update(dt)
@@ -15,6 +17,6 @@ function GameStart:update(dt)
 end
 
 function GameStart:draw()
-	print(self.countDown)
+	g:draw()
 end
 

@@ -9,7 +9,7 @@ end
 
 function Intro:update(dt)
 	self.counter = self.counter + dt
-	if self.counter >= 2 then
+	if self.counter >= 0.2 then
 		changeState("menu")
 	end
 end
