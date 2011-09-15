@@ -1,10 +1,21 @@
 
 require 'middleclass'
 
+-- A global variable accessible from everyewhere
+-- so we don't have duplicate graphics.
+-- must be loaded before states so states can
+-- load graphics while they are initialized,
+-- which happens when we require 'states'
+graphics = {}
+
 require 'states'
 
 function love.load()
+	-- The list of all available states
 	states = states.stateList
+
+	-- The current state, and the name of the next state
+	-- see love.update for how this works
 	state = states.intro
 	nextState = "intro"
 end

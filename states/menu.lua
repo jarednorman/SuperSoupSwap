@@ -7,6 +7,13 @@ function Menu:initialize()
 end
 
 function Menu:update(dt)
-	print(dt)
+end
+
+function Menu:mousepressed(x, y, button)
+	changeState("game")
+end
+
+function Menu:keypressed(key, unicode)
+	changeState("game")
 end
 
