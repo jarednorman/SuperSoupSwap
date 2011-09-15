@@ -6,9 +6,13 @@ require 'states'
 function love.load()
 	states = states.stateList
 	state = states.intro
+	nextState = "intro"
 end
 
 function love.update(dt)
+	if states[nextState] ~= state then
+		state = states[nextState]
+	end
 	state:update(dt)
 end
 
@@ -39,3 +43,6 @@ end
 function love.quit()
 end
 
+function changeState(s)
+	nextState = s
+end

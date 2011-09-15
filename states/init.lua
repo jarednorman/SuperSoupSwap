@@ -27,7 +27,11 @@ function State:focus(f)
 end
 
 require 'states.intro'
+require 'states.menu'
+require 'states.game'
 
 stateList = {}
 stateList.intro = states.intro.Intro()
+stateList.menu = states.menu.Menu()
+stateList.game = states.game.Game()
 
