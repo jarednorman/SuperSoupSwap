@@ -22,6 +22,8 @@ end
 require 'states'
 
 function love.load()
+	love.graphics.setMode(640, 480, false)
+
 	-- The list of all available states
 	stateList = states.stateList
 
