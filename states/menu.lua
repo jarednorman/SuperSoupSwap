@@ -14,10 +14,24 @@ function Menu:update(dt)
 end
 
 function Menu:draw()
-	love.graphics.draw(graphics['PRESSANYKEY.png'], (love.graphics.getWidth() - 3*graphics['PRESSANYKEY.png']:getWidth())/2, love.graphics.getHeight()*.75 - 1.5*graphics['PRESSANYKEY.png'], 0, 3, 3, 0)
-	love.graphics.draw(graphics['SUPER.png'], 0, 0, 0, 3, 3, 0)
-	love.graphics.draw(graphics['SOUP.png'], 0, 0, 0, 3, 3, 0)
-	love.graphics.draw(graphics['SWAP.png'], 0, 0, 0, 3, 3, 0)
+	if (love.timer.getTime()*10 % 11 < 7) then 
+		love.graphics.draw(graphics['PRESSANYKEY.png'],
+				(love.graphics.getWidth() - 3*graphics['PRESSANYKEY.png']:getWidth())/2,
+				love.graphics.getHeight()*.75 - 1.5*graphics['PRESSANYKEY.png']:getHeight(),
+				0, 3, 3)
+	end
+	love.graphics.draw(graphics['SUPER.png'],
+			(love.graphics.getWidth() - 3*graphics['SUPER.png']:getWidth())/2,
+			love.graphics.getHeight()*.2 - 1.5*graphics['SUPER.png']:getHeight(),
+			0, 3, 3)
+	love.graphics.draw(graphics['SOUP.png'],
+			(love.graphics.getWidth() - 3*graphics['SOUP.png']:getWidth())/2,
+			love.graphics.getHeight()*.2 - 1.5*graphics['SOUP.png']:getHeight() + 3*graphics['SUPER.png']:getHeight(),
+			0, 3, 3)
+	love.graphics.draw(graphics['SWAP.png'],
+			(love.graphics.getWidth() - 3*graphics['SWAP.png']:getWidth())/2,
+			love.graphics.getHeight()*.2 - graphics['SWAP.png']:getHeight() + 3*graphics['SOUP.png']:getHeight() + 3*graphics['SUPER.png']:getHeight(),
+			0, 3, 3)
 end
 
 function Menu:mousepressed(x, y, button)
