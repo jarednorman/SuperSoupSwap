@@ -31,7 +31,7 @@ require 'states.menu'
 require 'states.game'
 
 stateList = {}
-stateList.intro = states.intro.Intro()
-stateList.menu = states.menu.Menu()
-stateList.game = states.game.Game()
+stateList.intro = states.intro.Intro
+stateList.menu = states.menu.Menu
+stateList.game = states.game.Game
 
