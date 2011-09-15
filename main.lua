@@ -15,6 +15,7 @@ end
 function loadImage(i)
 	if graphics[i] == nil then
 		graphics[i] = love.graphics.newImage("Graphics/" .. i)
+		graphics[i]:setFilter('nearest', 'nearest')
 	end
 end
 
