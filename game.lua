@@ -11,8 +11,14 @@ function Game:reinitialize()
 end
 
 function Game:locateSquare(x, y)
-	local x = love.graphics.geWidth()*.85 - graphics['bg.png']:getWidth()*4 + x*44
+	local x = love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*4 + x*44
 	local y = love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*3 + y*30
+	return x, y
+end
+
+function Game:convertMousePosition(x, y)
+	local x = (x - love.graphics.getWidth()*.85 + graphics['bg.png']:getWidth()*4)/44
+	local y = (y - love.graphics.getHeight() + graphics['bg.png']:getHeight()*2*3)/30
 	return x, y
 end
 
