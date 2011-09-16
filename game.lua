@@ -10,33 +10,48 @@ function Game:reinitialize()
 	print("Game reinited")
 end
 
+function Game:locateSquare(x, y)
+	local x = love.graphics.geWidth()*.85 - graphics['bg.png']:getWidth()*4 + x*44
+	local y = love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*3 + y*30
+	return x, y
+end
+
 function Game:draw()
 	love.graphics.draw(graphics['bg.png'],
-							love.graphics.getWidth()/2 - graphics['bg.png']:getWidth()*2,
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*4,
 							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2,
 							0, 2, 2)
 	love.graphics.draw(graphics['bg.png'],
-							love.graphics.getWidth()/2,
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*2,
 							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2,
 							0, 2, 2)
 	love.graphics.draw(graphics['bg.png'],
-							love.graphics.getWidth()/2 - graphics['bg.png']:getWidth()*2,
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*4,
 							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*2,
 							0, 2, 2)
 	love.graphics.draw(graphics['bg.png'],
-							love.graphics.getWidth()/2,
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*2,
 							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*2,
 							0, 2, 2)
+	love.graphics.draw(graphics['bg.png'],
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*4,
+							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*3,
+							0, 2, 2)
+	love.graphics.draw(graphics['bg.png'],
+							love.graphics.getWidth()*.85 - graphics['bg.png']:getWidth()*2,
+							love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*3,
+							0, 2, 2)
+
 	love.graphics.draw(graphics['SUPER.png'],
 							6,
 							6,
 							0, 2, 2)
 	love.graphics.draw(graphics['SOUP.png'],
-							graphics['SUPER.png']:getWidth()*2 + 12,
 							6,
+							10 + graphics['SUPER.png']:getHeight()*2,
 							0, 2, 2)
 	love.graphics.draw(graphics['SWAP.png'],
-							graphics['SUPER.png']:getWidth()*2 + graphics['SOUP.png']:getWidth()*2 + 18,
 							6,
+							14 + graphics['SUPER.png']:getHeight()*2 + graphics['SOUP.png']:getHeight()*2,
 							0, 2, 2)
 end
