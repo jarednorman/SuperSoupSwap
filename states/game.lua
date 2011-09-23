@@ -17,3 +17,8 @@ function Game:draw()
 	g:draw()
 end
 
+function Game:mousepressed(x, y, button)
+	if button == 'l' then
+		g:mouseClicked(x, y)
+	end
+end

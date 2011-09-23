@@ -40,6 +40,8 @@ function Game:reinitialize()
 		local column = math.random(1,#self.columns)
 		local colour = colours[math.random(1,#colours)]
 		local half = haff[math.random(1,2)]
+		-- Only increment the number of blocks if we successfully
+		-- place the block (i.e. don't if the column is full)
 		if self:insertBlock(column, Block(colour, half)) then
 			n = n + 1
 		end
@@ -78,8 +80,8 @@ end
 function Game:convertScreenPosition(x, y)
 	local x = (x - love.graphics.getWidth()*.85 + graphics['bg.png']:getWidth()*4)/44
 	local y = (y - love.graphics.getHeight() + graphics['bg.png']:getHeight()*2*3)/30
-	x = x + 1
-	y = 18 + y
+	x = math.floor(x + 1)
+	y = math.ceil(18 - y)
 	return x, y
 end
 
@@ -138,4 +140,8 @@ function Game:draw()
 							0, 2, 2)
 
 
+end
+
+function Game:mouseClicked(x, y)
+	print(self:convertScreenPosition(x,y))
 end
