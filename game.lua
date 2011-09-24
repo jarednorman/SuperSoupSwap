@@ -64,7 +64,7 @@ function Game:insertBlock(column, block)
 	if block.half == 'half' then blockHeight = 2 end
 	if columnHeight + blockHeight > 17 then
 		return false
-	end
+git@github.com:txa-ea/SuperSoupSwap.git	end
 	table.insert(c, block)
 	return true
 end
@@ -76,13 +76,17 @@ function Game:locateSquare(x, y)
 	y = love.graphics.getHeight() - graphics['bg.png']:getHeight()*2*3 + y*30
 	return x, y
 end
-
+git@github.com:txa-ea/SuperSoupSwap.git
 function Game:convertScreenPosition(x, y)
 	local x = (x - love.graphics.getWidth()*.85 + graphics['bg.png']:getWidth()*4)/44
 	local y = (y - love.graphics.getHeight() + graphics['bg.png']:getHeight()*2*3)/30
 	x = math.floor(x + 1)
 	y = math.ceil(18 - y)
 	return x, y
+end
+
+function Game:getSquare(x, y)
+local colour = self.Column[x][height]
 end
 
 function Game:draw()
@@ -133,7 +137,7 @@ function Game:draw()
 	love.graphics.draw(graphics['SOUP.png'],
 							6,
 							10 + graphics['SUPER.png']:getHeight()*2,
-							0, 2, 2)
+							0, 2, 2)git@github.com:txa-ea/SuperSoupSwap.git
 	love.graphics.draw(graphics['SWAP.png'],
 							6,
 							14 + graphics['SUPER.png']:getHeight()*2 + graphics['SOUP.png']:getHeight()*2,
