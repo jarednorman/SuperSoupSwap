@@ -58,7 +58,7 @@ function Game:reinitialize()
 		end
 	end
 	self.columns[1][1].selected = true
-	self:getLocation(self.columns[2][3])
+	self:getBlock(8, 5)
 end
 
 function Game:insertBlock(column, block)
@@ -98,8 +98,19 @@ function Game:convertScreenPosition(x, y)
 	return x, y
 end
 
-function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block--
-	local block = self.columns[x][y]
+function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
+	local height = 0
+	local realY = 1
+	while height < y do
+		if self.columns[x][realY].half == 'half' then
+			height = height + 1
+		else
+			height = height + 2
+		end
+		realY = realY + 1
+	end
+	local block = self.columns[x][realY - 1]
+	print (x, realY - 1)
 	return block
 end
 
