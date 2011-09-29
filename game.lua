@@ -13,11 +13,22 @@ function Block:initialize(colour, half)
 	loadImage('tomatohalf.png')
 	self.colour = colour
 	self.half = half
+	self.selected = false
 end
 
 function Block:draw(x,y)
 	local sprite = self.colour .. self.half .. ".png"
 	love.graphics.draw(graphics[sprite], x, y, 0, 2, 2)
+	if self.selected then
+		if self.half == 'half' then
+			love.graphics.rectangle('line', x+0.5, y+0.5, 44, 30 )
+			love.graphics.rectangle('line', x+1.5, y+1.5, 44-2, 30-2)
+		else
+			love.graphics.rectangle('line', x+0.5, y+0.5, 44, 60)
+			love.graphics.rectangle('line', x+1.5, y+1.5, 44-2, 60-2)
+		end
+	end
+	
 end
 
 Game = class("Game")
@@ -46,6 +57,7 @@ function Game:reinitialize()
 			n = n + 1
 		end
 	end
+	self.columns[1][1].selected = true
 end
 
 function Game:insertBlock(column, block)
