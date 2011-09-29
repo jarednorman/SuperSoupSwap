@@ -97,6 +97,10 @@ function Game:convertScreenPosition(x, y)
 	return x, y
 end
 
+function Game:getSquare(x, y)
+local colour = self.Column[x][height]
+end
+
 function Game:draw()
 	-- Draw Board --
 	love.graphics.draw(graphics['bg.png'],
