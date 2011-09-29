@@ -155,5 +155,4 @@ function Game:draw()
 end
 
 function Game:mouseClicked(x, y)
-	print(self:convertScreenPosition(x,y))
 end
