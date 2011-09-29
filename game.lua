@@ -58,6 +58,7 @@ function Game:reinitialize()
 		end
 	end
 	self.columns[1][1].selected = true
+	self:getLocation(self.columns[2][3])
 end
 
 function Game:insertBlock(column, block)
@@ -97,9 +98,45 @@ function Game:convertScreenPosition(x, y)
 	return x, y
 end
 
-function Game:getSquare(x, y)
-local colour = self.Column[x][height]
+function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block--
+	local block = self.columns[x][y]
+	return block
 end
+
+function Game:getLocation( block )
+	local x = 1
+	local y = 1
+	while self.columns[x][y] ~= nil do
+		while self.columns[x][y] ~= nil do
+			if self.columns[x][y] == block then
+				local height = 0
+				local yPrime = 1
+				while yPrime <= y do
+					if self.columns[x][yPrime].half == 'half' then
+						height = height + 1
+					else
+						height = height + 2
+					end
+					yPrime = yPrime + 1
+				end
+				print(x, height)
+				return x, height
+			end
+			y = y + 1
+		end
+		y = 1
+		x = x + 1
+	end
+end
+
+function Game:findContiguous( block )
+	local colour = block.colour
+	local contiguous = {}
+	contiguous[1] = block
+	block.flagged = 1
+end	
+
+
 
 function Game:draw()
 	-- Draw Board --
@@ -131,7 +168,7 @@ function Game:draw()
 	for k,v in ipairs(self.columns) do
 		local verticalBlock = 0
 		for n,b in ipairs(v) do
-			if b.half == 'half' then
+			if b.half == 'half' then   
 				verticalBlock = verticalBlock + 1
 			else
 				verticalBlock = verticalBlock + 2
