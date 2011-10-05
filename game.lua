@@ -47,6 +47,7 @@ function Game:reinitialize()
 	end
 	-- POPULATE --
 	local initialBlockCount = 50
+	self.minContiguous = 5
 	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
 	local haff = {'','half'}
 	local n = 0
@@ -60,6 +61,16 @@ function Game:reinitialize()
 			n = n + 1
 		end
 	end
+
+	while #self:getContiguous(self.minContiguous) > 0 do
+		local contiguous = self:getContiguous(self.minContiguous)
+		for k, t in ipairs(contiguous) do
+			for k2, b in ipairs(t) do
+				b.colour = colours[math.random(1,#colours)]
+			end
+		end
+	end
+	
 	self.waitingOnPlayer = true
 end
 
@@ -332,9 +343,7 @@ function Game:getContiguous( n )
 
 	print("number of contiguous sets", #contiguous)
 	for k, t in pairs(contiguous) do
-		print("length of", k, "is", #t)
 		for k2, b in pairs(t) do
-			b.selected = true
 		end
 	end
 
