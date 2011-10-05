@@ -20,6 +20,7 @@ function Block:draw(x,y)
 	local sprite = self.colour .. self.half .. ".png"
 	love.graphics.draw(graphics[sprite], x, y, 0, 2, 2)
 	if self.selected then
+		love.graphics.setColor(255, 0, 255)
 		if self.half == 'half' then
 			love.graphics.rectangle('line', x+0.5, y+0.5, 44, 30 )
 			love.graphics.rectangle('line', x+1.5, y+1.5, 44-2, 30-2)
@@ -266,7 +267,7 @@ function Game:getContiguous( n )
 		changed = false
 		for k, t in pairs(contiguous) do 
 			for k2, t2 in pairs(contiguous) do
-				if self:areContiguous(t, t2) then
+				if self:areContiguous(t, t2) and t ~= t2 then
 					local temp = {}
 					for k3, t3 in pairs (contiguous) do
 						if t3 ~= t and t3 ~= t2 then
@@ -276,12 +277,17 @@ function Game:getContiguous( n )
 					
 					table.insert(temp, self:mergeTables(t, t2))
 					contiguous = temp
+					print (#contiguous)
 					changed = true
+					break
 				end
+			if changed then
+				break
+			end
 			end
 		end
-		print('g.g.')
-	end 
+	end
+
 
 	local temp = {}
 
@@ -294,7 +300,11 @@ function Game:getContiguous( n )
 	contiguous = temp
 
 	for k, t in pairs(contiguous) do
-		print ( #t )
+		print(#t)
+		for k2, b in pairs(t) do
+			b.selected = true
+		end
+		break
 	end
 
 
