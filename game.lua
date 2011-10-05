@@ -59,7 +59,7 @@ function Game:reinitialize()
 		end
 	end
 	
-	self:getContiguous(6)
+	self:getContiguous(5)
 end
 
 function Game:insertBlock(column, block)
@@ -109,13 +109,15 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 			height = height + 2
 		end
 
-		if height < y then
-			break
-		end
 
 		realY = realY + 1
+		
+		print(x, y, realY, height)
+		if self.columns[x][realY + 1] == nil then
+			break
+		end
 	end
-	local block = self.columns[x][realY]
+	local block = self.columns[x][realY - 1]
 
 	return block
 end
