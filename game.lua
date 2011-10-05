@@ -46,7 +46,7 @@ function Game:reinitialize()
 		self.columns[n] = {}
 	end
 	-- POPULATE --
-	local initialBlockCount = 50
+	local initialBlockCount = 5
 	self.minContiguous = 5
 	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
 	local haff = {'','half'}
@@ -72,6 +72,7 @@ function Game:reinitialize()
 	end
 	
 	self.waitingOnPlayer = true
+	self.blockSelected = nil
 end
 
 function Game:update() 
@@ -133,6 +134,7 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 	local height = 0
 	local realY = 1
 	while height < y do
+		if #self.columns[x] then return nil end
 		if self.columns[x][realY].half == 'half' then
 			height = height + 1
 		else
@@ -416,7 +418,12 @@ function Game:mouseClicked(x, y)
 		local x, y = self:convertScreenPosition(x, y)
 		local block = self:getBlock(x, y)
 		if block ~= nil then
-			block.selected = true
+			if self.blockSelected == nil then
+				self.blockSelected = block
+				block.selected = true
+			else
+				-- SWATCH
+			end
 		end
 	end
 end
