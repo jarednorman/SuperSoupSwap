@@ -14,6 +14,8 @@ function Block:initialize(colour, half)
 	self.colour = colour
 	self.half = half
 	self.selected = false
+	self.yOffset = 0
+	self.xOffset = 0
 end
 
 function Block:draw(x,y)
@@ -68,9 +70,26 @@ function Game:reinitialize()
 			end
 		end
 	end
+	
+	self.waitingOnPlayer = true
+end
 
-				
+function Game:update() 
+	if not self.waitingOnPlayer then
+		self:gameLogicIterate()
+	end
+end
 
+function Game:gameLogicIterate()
+	-- if blocks are moving (falling, switching)
+		-- make them continue
+	-- elseif all the blocks are in place
+		-- if there are contiguous ones
+			-- remove them, set the other ones falling
+		-- else
+			-- self.waitingOnPlayer = true
+		-- end
+	-- end
 end
 
 function Game:insertBlock(column, block)
@@ -123,7 +142,7 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 
 		realY = realY + 1
 		
-		if self.columns[x][realY + 1] == nil and height < y then
+		if self.columns[x][realY + 1] == nil and height + 1 < y then
 			return nil
 		end
 	end
@@ -158,7 +177,8 @@ function Game:getLocation( block )
 	end
 end
 
-function Game:findLocalContiguous( block ) --returns a table with all those blocks contiguous to and the same colour as the given block
+-- returns a table with all the blocks adjacent to and the same colour as the given block
+function Game:findLocalContiguous( block )
 	local colour = block.colour
 	local contiguous = {}
 	local x, y = self:getLocation( block )
@@ -167,24 +187,28 @@ function Game:findLocalContiguous( block ) --returns a table with all those bloc
 
 
 	if block.half == 'half' then
+		-- The block above
 		if y + 1 <= #self.columns[x] and self:getBlock(x, y + 1) ~= nil then
 			if self:getBlock(x, y + 1).colour == colour then
 				table.insert(contiguous, self:getBlock(x, y + 1) )
 			end
 		end
 
+		-- The block below
 		if y - 1 > 0 and self:getBlock(x, y - 1) ~= nil then
 			if self:getBlock(x, y - 1).colour == colour then
 				table.insert(contiguous, self:getBlock(x, y - 1))
 			end
 		end
 
+		-- The block to the right
 		if x + 1 <= #self.columns and self:getBlock(x + 1, y) ~= nil then
 			if self:getBlock(x + 1, y).colour == colour then
 				table.insert(contiguous, self:getBlock(x + 1, y))
 			end
 		end
 
+		-- The block to the left
 		if x - 1 > 0 and self:getBlock(x - 1, y) ~= nil then
 			if self:getBlock(x - 1, y).colour == colour then
 				table.insert(contiguous, self:getBlock(x - 1, y))
@@ -193,24 +217,27 @@ function Game:findLocalContiguous( block ) --returns a table with all those bloc
 
 	else
 
+		-- The block above
 		if y + 1 <= #self.columns[x] and self:getBlock(x, y + 1) ~= nil then
 			if self:getBlock(x, y + 1).colour == colour then
 				table.insert(contiguous, self:getBlock(x, y + 1) )
 			end
 		end
 		
+		-- The block below
 		if y - 2 > 0 and self:getBlock(x, y - 2) ~= nil then
 			if self:getBlock(x, y - 2).colour == colour then
 				table.insert(contiguous, self:getBlock(x, y - 2))
 			end
 		end
 
+		-- The block right
 		if x + 1 <= #self.columns and self:getBlock(x + 1, y) ~= nil then
 			if self:getBlock(x + 1, y).colour == colour then
 				table.insert(contiguous, self:getBlock(x + 1, y) )
 			end
 		end
-
+		-- The block right, down one
 		if x + 1 <= #self.columns and y - 1 > 0 and self:getBlock(x + 1, y) ~= nil and self:getBlock(x + 1, y - 1) ~= nil then
 			if self:getBlock(x + 1, y) ~= self:getBlock(x + 1, y - 1) then
 				if self:getBlock(x + 1, y - 1).colour == colour then
@@ -218,13 +245,15 @@ function Game:findLocalContiguous( block ) --returns a table with all those bloc
 				end
 			end
 		end
-
+		
+		-- The block left
 		if x - 1 > 0 and self:getBlock(x - 1, y) ~= nil then
 			if self:getBlock(x - 1, y).colour == colour then
 				table.insert(contiguous, self:getBlock(x - 1, y) )
 			end
 		end
 
+		-- The block left, one down
 		if x - 1 > 0 and y - 1 > 0 and self:getBlock(x - 1, y - 1) ~= nil and self:getBlock(x - 1, y) ~= nil then
 			if self:getBlock(x - 1, y) ~= self:getBlock(x - 1, y - 1) then
 				if self:getBlock(x - 1, y - 1).colour == colour then
@@ -249,8 +278,9 @@ end
 
 function Game:mergeTables( table1, table2 ) --takes two tables of blocks and returns their union
 	local t = {}
+
 	for foo, b1 in pairs(table1) do
-	local common = false
+		local common = false
 		for foo2, b2 in pairs(table2) do
 			if b1 == b2 then
 				common = true
@@ -264,6 +294,7 @@ function Game:mergeTables( table1, table2 ) --takes two tables of blocks and ret
 	for foo, b in pairs(table2) do
 		table.insert(t, b)
 	end
+
 	return t
 end
 
@@ -310,6 +341,7 @@ function Game:getContiguous( n )
 
 	contiguous = temp
 
+	print("number of contiguous sets", #contiguous)
 	for k, t in pairs(contiguous) do
 		for k2, b in pairs(t) do
 		end
@@ -380,4 +412,11 @@ function Game:draw()
 end
 
 function Game:mouseClicked(x, y)
+	if self.waitingOnPlayer then
+		local x, y = self:convertScreenPosition(x, y)
+		local block = self:getBlock(x, y)
+		if block ~= nil then
+			block.selected = true
+		end
+	end
 end
