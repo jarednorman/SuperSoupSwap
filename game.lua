@@ -158,7 +158,7 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 
 		realY = realY + 1
 		
-		if self.columns[x][realY + 1] == nil and height + 1 < y then
+		if self.columns[x][realY] == nil and height + 1 < y then
 			return nil
 		end
 	end
