@@ -45,6 +45,7 @@ function Game:reinitialize()
 	end
 	-- POPULATE --
 	local initialBlockCount = 50
+	self.minContiguous = 5
 	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
 	local haff = {'','half'}
 	local n = 0
@@ -59,7 +60,17 @@ function Game:reinitialize()
 		end
 	end
 
-	self:getContiguous(5)
+	while #self:getContiguous(self.minContiguous) > 0 do
+		local contiguous = self:getContiguous(self.minContiguous)
+		for k, t in ipairs(contiguous) do
+			for k2, b in ipairs(t) do
+				b.colour = colours[math.random(1,#colours)]
+			end
+		end
+	end
+
+				
+
 end
 
 function Game:insertBlock(column, block)
@@ -112,9 +123,7 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 
 		realY = realY + 1
 		
-		print(x, y, realY, height)
 		if self.columns[x][realY + 1] == nil and height < y then
-			print('block does not exist')
 			return nil
 		end
 	end
@@ -302,9 +311,7 @@ function Game:getContiguous( n )
 	contiguous = temp
 
 	for k, t in pairs(contiguous) do
-		print(#t)
 		for k2, b in pairs(t) do
-			b.selected = true
 		end
 	end
 
