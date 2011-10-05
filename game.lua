@@ -20,7 +20,7 @@ end
 
 function Block:draw(x,y)
 	local sprite = self.colour .. self.half .. ".png"
-	love.graphics.draw(graphics[sprite], x, y, 0, 2, 2)
+	love.graphics.draw(graphics[sprite], x + self.xOffset, y+self.yOffset, 0, 2, 2)
 	if self.selected then
 		love.graphics.setColor(255, 0, 255)
 		if self.half == 'half' then
@@ -357,7 +357,6 @@ function Game:getContiguous( n )
 
 	contiguous = temp
 
-	print("number of contiguous sets", #contiguous)
 	for k, t in pairs(contiguous) do
 		for k2, b in pairs(t) do
 		end
@@ -428,14 +427,20 @@ function Game:draw()
 end
 
 function Game:switchBlocks(a, b)
+	local x1, y1 = self:getLocation(a)
+	local x2, y2 = self:getLocation(b)
+	if x1 == x2 - 1 or x1 == x2 + 1 then
+		if y1 == y2 and a.half == b.half then
+			a.xOffset = 44
+			b.xOffset = -44
+		end
+	end
 end
 
 function Game:mouseClicked(x, y)
 	if self.waitingOnPlayer then
 		local x, y = self:convertScreenPosition(x, y)
-		print(x, y)
 		local block = self:getBlock(x, y)
-		print (block)
 		if block ~= nil then
 			if self.blockSelected == nil then
 				self.blockSelected = block
