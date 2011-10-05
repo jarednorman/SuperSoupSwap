@@ -427,6 +427,9 @@ function Game:draw()
 
 end
 
+function Game:switchBlocks(a, b)
+end
+
 function Game:mouseClicked(x, y)
 	if self.waitingOnPlayer then
 		local x, y = self:convertScreenPosition(x, y)
@@ -438,7 +441,9 @@ function Game:mouseClicked(x, y)
 				self.blockSelected = block
 				block.selected = true
 			else
-				-- SWATCH
+				self:switchBlocks(self.blockSelected, block)
+				self.blockSelected.selected = false
+				self.blockSelected = nil
 			end
 		end
 	end
