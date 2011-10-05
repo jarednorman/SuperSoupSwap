@@ -46,7 +46,7 @@ function Game:reinitialize()
 		self.columns[n] = {}
 	end
 	-- POPULATE --
-	local initialBlockCount = 50
+	local initialBlockCount = 5
 	self.minContiguous = 5
 	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
 	local haff = {'','half'}
@@ -83,6 +83,17 @@ end
 function Game:gameLogicIterate()
 	-- if blocks are moving (falling, switching)
 		-- make them continue
+	for k, t in ipairs(self.columns) do
+		for k2, b in ipairs(self.columns[t]) do
+			if b.yOffset ~= 0 then
+				b.yOffset = b.yOffset * .5
+			end
+
+			if b.xOffset ~= 0 then
+				b.xOffset = b. xOffset * .5
+			end
+		end
+	end
 	-- elseif all the blocks are in place
 		-- if there are contiguous ones
 			-- remove them, set the other ones falling
@@ -154,7 +165,7 @@ end
 function Game:getLocation( block )
 	local x = 1
 	local y = 1
-	while self.columns[x][y] ~= nil do
+	while x <= #self.columns do
 		while self.columns[x][y] ~= nil do
 			if self.columns[x][y] == block then
 				local height = 0
@@ -322,7 +333,7 @@ function Game:getContiguous( n )
 					contiguous = temp
 					changed = true
 					break
-				end
+			end
 			if changed then
 				break
 			end
