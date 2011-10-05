@@ -57,8 +57,8 @@ function Game:reinitialize()
 			n = n + 1
 		end
 	end
-	self.columns[1][1].selected = true
-	self:getBlock(8, 5)
+	
+	self:getContiguous(6)
 end
 
 function Game:insertBlock(column, block)
@@ -107,10 +107,15 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 		else
 			height = height + 2
 		end
+
+		if height < y then
+			break
+		end
+
 		realY = realY + 1
 	end
-	local block = self.columns[x][realY - 1]
-	print (x, realY - 1)
+	local block = self.columns[x][realY]
+
 	return block
 end
 
@@ -130,7 +135,7 @@ function Game:getLocation( block )
 					end
 					yPrime = yPrime + 1
 				end
-				print(x, height)
+
 				return x, height
 			end
 			y = y + 1
@@ -140,14 +145,164 @@ function Game:getLocation( block )
 	end
 end
 
-function Game:findContiguous( block )
+function Game:findLocalContiguous( block ) --returns a table with all those blocks contiguous to and the same colour as the given block
 	local colour = block.colour
 	local contiguous = {}
+	local x, y = self:getLocation( block )
 	contiguous[1] = block
 	block.flagged = 1
-end	
 
 
+	if block.half == 'half' then
+		if y + 1 <= #self.columns[x] then
+			if self:getBlock(x, y + 1).colour == colour then
+				table.insert(contiguous, self:getBlock(x, y + 1) )
+			end
+		end
+
+		if y - 1 > 0 then
+			if self:getBlock(x, y - 1).colour == colour then
+				table.insert(contiguous, self:getBlock(x, y - 1))
+			end
+		end
+
+		if x + 1 <= #self.columns then
+			if self:getBlock(x + 1, y).colour == colour then
+				table.insert(contiguous, self:getBlock(x + 1, y))
+			end
+		end
+
+		if x - 1 > 0 then
+			if self:getBlock(x - 1, y).colour == colour then
+				table.insert(contiguous, self:getBlock(x - 1, y))
+			end
+		end
+
+	else
+
+		if y + 1 <= #self.columns[x] then
+			if self:getBlock(x, y + 1).colour == colour then
+				table.insert(contiguous, self:getBlock(x, y + 1) )
+			end
+		end
+		
+		if y - 2 > 0 then
+			if self:getBlock(x, y - 2).colour == colour then
+				table.insert(contiguous, self:getBlock(x, y - 2))
+			end
+		end
+
+		if x + 1 <= #self.columns then
+			if self:getBlock(x + 1, y).colour == colour then
+				table.insert(contiguous, self:getBlock(x + 1, y) )
+			end
+		end
+
+		if x + 1 <= #self.columns and y - 1 > 0 then
+			if self:getBlock(x + 1, y) ~= self:getBlock(x + 1, y - 1) then
+				if self:getBlock(x + 1, y - 1).colour == colour then
+					table.insert(contiguous, self:getBlock(x + 1, y - 1) )
+				end
+			end
+		end
+
+		if x - 1 > 0 then
+			if self:getBlock(x - 1, y).colour == colour then
+				table.insert(contiguous, self:getBlock(x - 1, y) )
+			end
+		end
+
+		if x - 1 > 0 and y - 1 > 0 then
+			if self:getBlock(x - 1, y) ~= self:getBlock(x - 1, y - 1) then
+				if self:getBlock(x - 1, y - 1).colour == colour then
+					table.insert(contiguous, self:getBlock(x - 1, y - 1) )
+				end
+			end	
+		end
+	end
+	return contiguous
+end
+
+function Game:areContiguous( table1, table2 ) --takes two tables and returns true if they have an elements in common false otherwise
+	for foo, b1 in pairs(table1) do
+		for foo2, b2 in pairs(table2) do
+			if b1 == b2 then
+				return true
+			end
+		end
+	end
+	return false
+end		
+
+function Game:mergeTables( table1, table2 ) --takes two tables of blocks and returns their union
+	local t = {}
+	for foo, b1 in pairs(table1) do
+	local common = false
+		for foo2, b2 in pairs(table2) do
+			if b1 == b2 then
+				common = true
+			end
+		end
+		if not common then
+			table.insert(t, b1)
+		end
+	end
+
+	for foo, b in pairs(table2) do
+		table.insert(t, b)
+	end
+	return t
+end
+
+function Game:getContiguous( n )
+	local contiguous = {}
+	for k, c in pairs(self.columns) do
+		for k2, b in pairs(c) do	
+			table.insert(contiguous, self:findLocalContiguous(b))
+		end
+	end
+	local changed = true
+	while changed do
+		changed = false
+		for k, t in pairs(contiguous) do 
+			for k2, t2 in pairs(contiguous) do
+				if self:areContiguous(t, t2) then
+					local temp = {}
+					for k3, t3 in pairs (contiguous) do
+						if t3 ~= t and t3 ~= t2 then
+							table.insert(temp, t3)
+						end
+					end
+					
+					table.insert(temp, self:mergeTables(t, t2))
+					contiguous = temp
+					changed = true
+				end
+			end
+		end
+		print('g.g.')
+	end 
+
+	local temp = {}
+
+	for foo, t in pairs(contiguous) do --filtering out contiguous groups that are too small
+		if #t >= n then
+			table.insert(temp, t)			
+		end
+	end
+
+	contiguous = temp
+
+	for k, t in pairs(contiguous) do
+		print ( #t )
+	end
+
+
+	return contiguous
+
+end
+	
+		
 
 function Game:draw()
 	-- Draw Board --
