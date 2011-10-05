@@ -11,6 +11,7 @@ function Game:initialize()
 end
 
 function Game:update(dt)
+	g:update(dt)
 end
 
 function Game:draw()

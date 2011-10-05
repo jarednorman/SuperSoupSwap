@@ -14,6 +14,8 @@ function Block:initialize(colour, half)
 	self.colour = colour
 	self.half = half
 	self.selected = false
+	self.yOffset = 0
+	self.xOffset = 0
 end
 
 function Block:draw(x,y)
@@ -58,8 +60,25 @@ function Game:reinitialize()
 			n = n + 1
 		end
 	end
+	self.waitingOnPlayer = true
+end
 
-	self:getContiguous(5)
+function Game:update() 
+	if not self.waitingOnPlayer then
+		self:gameLogicIterate()
+	end
+end
+
+function Game:gameLogicIterate()
+	-- if blocks are moving (falling, switching)
+		-- make them continue
+	-- elseif all the blocks are in place
+		-- if there are contiguous ones
+			-- remove them, set the other ones falling
+		-- else
+			-- self.waitingOnPlayer = true
+		-- end
+	-- end
 end
 
 function Game:insertBlock(column, block)
@@ -112,9 +131,7 @@ function Game:getBlock(x, y) --Takes in x, y on game grid, returns the block
 
 		realY = realY + 1
 		
-		print(x, y, realY, height)
-		if self.columns[x][realY + 1] == nil and height < y then
-			print('block does not exist')
+		if self.columns[x][realY + 1] == nil and height + 1 < y then
 			return nil
 		end
 	end
@@ -386,4 +403,11 @@ function Game:draw()
 end
 
 function Game:mouseClicked(x, y)
+	if self.waitingOnPlayer then
+		local x, y = self:convertScreenPosition(x, y)
+		local block = self:getBlock(x, y)
+		if block ~= nil then
+			block.selected = true
+		end
+	end
 end
