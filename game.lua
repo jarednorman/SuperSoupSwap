@@ -75,23 +75,37 @@ function Game:reinitialize()
 	self.blockSelected = nil
 end
 
-function Game:update() 
+function Game:update(dt) 
 	if not self.waitingOnPlayer then
-		self:gameLogicIterate()
+		self:gameLogicIterate(dt)
 	end
 end
 
-function Game:gameLogicIterate()
+function Game:gameLogicIterate(dt)
+	local xOffsetSpeed = .5
+	local yOffsetSpeed = .5
+	local minXOffset = 1
+	local minYOffset = 1
+
 	-- if blocks are moving (falling, switching)
 		-- make them continue
+		
 	for k, t in ipairs(self.columns) do
 		for k2, b in ipairs(self.columns[t]) do
 			if b.yOffset ~= 0 then
-				b.yOffset = b.yOffset * .5
+				b.yOffset = b.yOffset * yOffsetSpeed * dt
+			end
+
+			if b.yOffset < minYOffset then
+				b.yOffset = 0
 			end
 
 			if b.xOffset ~= 0 then
-				b.xOffset = b. xOffset * .5
+				b.xOffset = b. xOffset * xOffsetSpeed * dt
+			end
+
+			if b.xOffset < minXOffset then
+				b.xOffset = 0
 			end
 		end
 	end
