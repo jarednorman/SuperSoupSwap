@@ -237,8 +237,9 @@ end
 
 function Game:mergeTables( table1, table2 ) --takes two tables of blocks and returns their union
 	local t = {}
+
 	for foo, b1 in pairs(table1) do
-	local common = false
+		local common = false
 		for foo2, b2 in pairs(table2) do
 			if b1 == b2 then
 				common = true
@@ -252,6 +253,7 @@ function Game:mergeTables( table1, table2 ) --takes two tables of blocks and ret
 	for foo, b in pairs(table2) do
 		table.insert(t, b)
 	end
+
 	return t
 end
 
