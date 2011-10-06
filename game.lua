@@ -46,7 +46,7 @@ function Game:reinitialize()
 		self.columns[n] = {}
 	end
 	-- POPULATE --
-	local initialBlockCount = 15
+	local initialBlockCount = 50
 	self.minContiguous = 5
 	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
 	local haff = {'','half'}
@@ -82,26 +82,57 @@ function Game:update()
 end
 
 function Game:gameLogicIterate()
-	-- if blocks are moving (falling, switching)
-		-- make them continue
+	local xOffsetSpeed = 0.9
+	local yOffsetSpeed = 0.7
+	local somethingMoved = false
+
 	for k, t in ipairs(self.columns) do
-		for k2, b in ipairs(self.columns[t]) do
+		for k2, b in ipairs(t) do
+			if math.abs(b.yOffset) < 0.1 then
+				b.yOffset = 0
+			end
+			if math.abs(b.xOffset) < 0.1 then
+				b.xOffset = 0
+			end
+
+
 			if b.yOffset ~= 0 then
-				b.yOffset = b.yOffset * .5
+				b.yOffset = b.yOffset * yOffsetSpeed
+				somethingMoved = true
 			end
 
 			if b.xOffset ~= 0 then
-				b.xOffset = b. xOffset * .5
+				b.xOffset = b. xOffset * xOffsetSpeed
+				somethingMoved = true
 			end
 		end
 	end
-	-- elseif all the blocks are in place
-		-- if there are contiguous ones
-			-- remove them, set the other ones falling
-		-- else
-			-- self.waitingOnPlayer = true
-		-- end
-	-- end
+	if not somethingMoved then
+		
+		self.waitingOnPlayer = true
+	end
+end
+
+function Game:destroyBlock(block)
+	local startPushing = false
+	local offSet = -30
+	if block.half == '' then offSet = offSet*2 end
+	
+	for _, column in ipairs(self.columns) do
+		startPushing = false
+		for k, b in ipairs(column) do
+			if b == block then
+				table.remove(column, k)
+				startPushing = true
+				if column[k] ~= nil then
+					column[k].yOffset = offSet
+				end
+			elseif startPushing then
+				b.yOffset = offSet
+			end
+		end
+	end
+
 end
 
 function Game:insertBlock(column, block)
@@ -426,13 +457,41 @@ function Game:draw()
 
 end
 
+function Game:actualSwitch(a, b)
+	local aColumn = nil
+	local bColumn = nil
+	local aIndex = nil
+	local bIndex = nil
+	for _, column in ipairs(self.columns) do
+		for k, block in ipairs(column) do
+			if block == a then
+				aColumn = column
+				aIndex = k
+			elseif block == b then
+				bColumn = column
+				bIndex = k
+			end
+		end
+	end
+	local tmp = b
+	bColumn[bIndex] = a
+	aColumn[aIndex] = tmp
+end
+
 function Game:switchBlocks(a, b)
 	local x1, y1 = self:getLocation(a)
 	local x2, y2 = self:getLocation(b)
-	if x1 == x2 - 1 or x1 == x2 + 1 then
-		if y1 == y2 and a.half == b.half then
+	if y1 == y2 and a.half == b.half then
+		if x1 == x2 - 1 then
+			a.xOffset = -44
+			b.xOffset = 44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		elseif x1 == x2 + 1 then
 			a.xOffset = 44
 			b.xOffset = -44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
 		end
 	end
 end
