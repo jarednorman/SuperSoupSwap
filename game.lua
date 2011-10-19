@@ -106,7 +106,7 @@ function Game:reinitialize()
 		end
 	end
 	
-	self.waitingOnPlayer = true
+	self.waitingOnPlayer = false
 	self.blockSelected = nil
 end
 
