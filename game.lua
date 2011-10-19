@@ -16,6 +16,7 @@ function Block:initialize(colour, half)
 	self.selected = false
 	self.yOffset = 0
 	self.xOffset = 0
+	self.state = "idle"
 end
 
 function Block:draw(x,y)
@@ -31,7 +32,39 @@ function Block:draw(x,y)
 			love.graphics.rectangle('line', x+1.5, y+1.5, 44-2, 60-2)
 		end
 	end
-	
+end
+
+function Block:update(dt)
+	local minXOffset = 0.2
+	local minYOffset = 0.2
+
+	local xOffsetSpeed = 0.9
+	local yOffsetSpeed = 0.9
+	if self.state == "switching" then
+	elseif self.state == "raising" then
+		yOffsetSpeed = 0.94
+	elseif self.state == "falling" then
+	end
+
+	if math.abs(self.yOffset) < minYOffset then
+		self.yOffset = 0
+	end
+	if math.abs(self.xOffset) < minXOffset then
+		self.xOffset = 0
+	end
+
+
+	if self.yOffset ~= 0 then
+		self.yOffset = self.yOffset * yOffsetSpeed
+	end
+
+	if self.xOffset ~= 0 then
+		self.xOffset = self.xOffset * xOffsetSpeed
+	end
+
+	if self.xOffset == 0 and self.yOffset == 0 then
+		self.state = "idle"
+	end
 end
 
 Game = class("Game")
@@ -79,11 +112,12 @@ end
 
 function Game:update(dt) 
 	if not self.waitingOnPlayer then
+		for k,column in ipairs(self.columns) do
+			for n, block in ipairs(column) do
+				block:update(dt)
+			end
+		end
 		self:gameLogicIterate(dt)
-	end
-	if self.movesLeft == 0 then
-		self:addRow()
-		self.movesLeft = self.maxMoves
 	end
 end
 
@@ -94,39 +128,26 @@ function Game:addRow()
 		if not self:insertBlock(c, Block(colour, half)) then
 			print("GAME OVER")
 		end
+		if half == 'half' then
+			colour = self.colours[math.random(1,#self.colours)]
+			if not self:insertBlock(c, Block(colour, half)) then
+				print("GAME OVER")
+			end
+		end
 	end
 end
 
 
 function Game:gameLogicIterate()
-	local xOffsetSpeed = 0.9
-	local yOffsetSpeed = 0.9
-	local somethingMoved = false
-	local minXOffset = 0.1
-	local minYOffset = 0.1
-
-	for k, t in ipairs(self.columns) do
-		for k2, b in ipairs(t) do
-			if math.abs(b.yOffset) < minYOffset then
-				b.yOffset = 0
-			end
-			if math.abs(b.xOffset) < minXOffset then
-				b.xOffset = 0
-			end
-
-
-			if b.yOffset ~= 0 then
-				b.yOffset = b.yOffset * yOffsetSpeed
-				somethingMoved = true
-			end
-
-			if b.xOffset ~= 0 then
-				b.xOffset = b. xOffset * xOffsetSpeed
-				somethingMoved = true
+	local somethingMoving = false
+	for k, column in ipairs(self.columns) do
+		for j, block in ipairs(column) do
+			if block.state ~= "idle" then
+				somethingMoving = true
 			end
 		end
 	end
-	if not somethingMoved then
+	if not somethingMoving then
 		local cont = self:getContiguous(self.minContiguous)
 		local destroyedAny = false
 		if #cont > 0 then destroyedAny = true end
@@ -137,6 +158,11 @@ function Game:gameLogicIterate()
 		end
 		if not destroyedAny then
 			self.waitingOnPlayer = true
+			if self.movesLeft == 0 then
+				self.waitingOnPlayer = false
+				self:addRow()
+				self.movesLeft = self.maxMoves
+			end
 		end
 	end
 end
@@ -154,6 +180,7 @@ function Game:destroyBlock(block)
 				startPushing = true
 				if column[k] ~= nil then
 					column[k].yOffset = offSet
+					column[k].state = "falling"
 				end
 			elseif startPushing then
 				b.yOffset = offSet
@@ -181,6 +208,17 @@ function Game:insertBlock(column, block)
 		return false
 	end
 	table.insert(c, 1, block)
+	if block.half == 'half' then
+		for k,b in ipairs(c) do
+			b.state = "raising"
+			b.yOffset = b.yOffset + 30
+		end
+	else
+		for k,b in ipairs(c) do
+			b.state = "raising"
+			b.yOffset = b.yOffset + 60
+		end
+	end
 	return true
 end
 
@@ -502,6 +540,8 @@ function Game:actualSwitch(a, b)
 		end
 	end
 	local tmp = b
+	a.state = "switching"
+	b.state = "switching"
 	bColumn[bIndex] = a
 	aColumn[aIndex] = tmp
 	self.movesLeft = self.movesLeft - 1
