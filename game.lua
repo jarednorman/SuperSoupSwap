@@ -116,12 +116,12 @@ function Game:gameLogicIterate()
 
 
 			if b.yOffset ~= 0 then
-				b.yOffset = b.yOffset * yOffsetSpeed * dt
+				b.yOffset = b.yOffset * yOffsetSpeed
 				somethingMoved = true
 			end
 
 			if b.xOffset ~= 0 then
-				b.xOffset = b. xOffset * xOffsetSpeed * dt
+				b.xOffset = b. xOffset * xOffsetSpeed
 				somethingMoved = true
 			end
 		end
@@ -522,6 +522,32 @@ function Game:switchBlocks(a, b)
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
 		end
+
+	elseif x1 == x2 and a.half == b.half then
+		if y1 == y2 - 1 then
+			a.yOffset = 44
+			b.yOffset = -44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		elseif y1 == y2 + 1 then
+			a.yOffset = -44
+			b.yOffset = 44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		end
+		if y1 == y2 - 2 then
+			a.yOffset = 88
+			b.yOffset = -88
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		elseif y1 == y2 + 2 then
+			a.yOffset = -88
+			b.yOffset = 88
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		end
+
+ 
 	end
 end
 
