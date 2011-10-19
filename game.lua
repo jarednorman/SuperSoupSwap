@@ -20,7 +20,7 @@ end
 
 function Block:draw(x,y)
 	local sprite = self.colour .. self.half .. ".png"
-	love.graphics.draw(graphics[sprite], x, y, 0, 2, 2)
+	love.graphics.draw(graphics[sprite], x + self.xOffset, y+self.yOffset, 0, 2, 2)
 	if self.selected then
 		love.graphics.setColor(255, 0, 255)
 		if self.half == 'half' then
@@ -37,24 +37,26 @@ end
 Game = class("Game")
 
 function Game:initialize()
+	self.minContiguous = 4
+	self.maxMoves = 5
 end
 
 function Game:reinitialize()
 	math.randomseed(os.time())
+	self.movesLeft = self.maxMoves
 	self.columns = {}
 	for n=1,8 do
 		self.columns[n] = {}
 	end
 	-- POPULATE --
-	local initialBlockCount = 15
-	self.minContiguous = 5
-	local colours = {'tomato', 'peaches', 'blue', 'mushroom'}
-	local haff = {'','half'}
+	local initialBlockCount = 50
+	self.colours = {'tomato', 'peaches', 'blue', 'mushroom'}
+	self.haff = {'','half'}
 	local n = 0
 	while n < initialBlockCount do
 		local column = math.random(1,#self.columns)
-		local colour = colours[math.random(1,#colours)]
-		local half = haff[math.random(1,2)]
+		local colour = self.colours[math.random(1,#self.colours)]
+		local half = self.haff[math.random(1,2)]
 		-- Only increment the number of blocks if we successfully
 		-- place the block (i.e. don't if the column is full)
 		if self:insertBlock(column, Block(colour, half)) then
@@ -66,7 +68,7 @@ function Game:reinitialize()
 		local contiguous = self:getContiguous(self.minContiguous)
 		for k, t in ipairs(contiguous) do
 			for k2, b in ipairs(t) do
-				b.colour = colours[math.random(1,#colours)]
+				b.colour = self.colours[math.random(1,#self.colours)]
 			end
 		end
 	end
@@ -79,43 +81,86 @@ function Game:update(dt)
 	if not self.waitingOnPlayer then
 		self:gameLogicIterate(dt)
 	end
+	if self.movesLeft == 0 then
+		self:addRow()
+		self.movesLeft = self.maxMoves
+	end
 end
 
-function Game:gameLogicIterate(dt)
-	local xOffsetSpeed = .5
-	local yOffsetSpeed = .5
-	local minXOffset = 1
-	local minYOffset = 1
+function Game:addRow()
+	for c, column in ipairs(self.columns) do
+		local colour = self.colours[math.random(1,#self.colours)]
+		local half = self.haff[math.random(1,2)]
+		if not self:insertBlock(c, Block(colour, half)) then
+			print("GAME OVER")
+		end
+	end
+end
 
-	-- if blocks are moving (falling, switching)
-		-- make them continue
-		
+
+function Game:gameLogicIterate()
+	local xOffsetSpeed = 0.9
+	local yOffsetSpeed = 0.9
+	local somethingMoved = false
+	local minXOffset = 0.1
+	local minYOffset = 0.1
+
 	for k, t in ipairs(self.columns) do
-		for k2, b in ipairs(self.columns[t]) do
-			if b.yOffset ~= 0 then
-				b.yOffset = b.yOffset * yOffsetSpeed * dt
+		for k2, b in ipairs(t) do
+			if math.abs(b.yOffset) < minYOffset then
+				b.yOffset = 0
+			end
+			if math.abs(b.xOffset) < minXOffset then
+				b.xOffset = 0
 			end
 
-			if b.yOffset < minYOffset then
-				b.yOffset = 0
+
+			if b.yOffset ~= 0 then
+				b.yOffset = b.yOffset * yOffsetSpeed * dt
+				somethingMoved = true
 			end
 
 			if b.xOffset ~= 0 then
 				b.xOffset = b. xOffset * xOffsetSpeed * dt
-			end
-
-			if b.xOffset < minXOffset then
-				b.xOffset = 0
+				somethingMoved = true
 			end
 		end
 	end
-	-- elseif all the blocks are in place
-		-- if there are contiguous ones
-			-- remove them, set the other ones falling
-		-- else
-			-- self.waitingOnPlayer = true
-		-- end
-	-- end
+	if not somethingMoved then
+		local cont = self:getContiguous(self.minContiguous)
+		local destroyedAny = false
+		if #cont > 0 then destroyedAny = true end
+		for _,group in pairs(cont) do
+			for k, block in pairs(group) do
+				self:destroyBlock(block)
+			end
+		end
+		if not destroyedAny then
+			self.waitingOnPlayer = true
+		end
+	end
+end
+
+function Game:destroyBlock(block)
+	local startPushing = false
+	local offSet = -30
+	if block.half == '' then offSet = offSet*2 end
+	
+	for _, column in ipairs(self.columns) do
+		startPushing = false
+		for k, b in ipairs(column) do
+			if b == block then
+				table.remove(column, k)
+				startPushing = true
+				if column[k] ~= nil then
+					column[k].yOffset = offSet
+				end
+			elseif startPushing then
+				b.yOffset = offSet
+			end
+		end
+	end
+
 end
 
 function Game:insertBlock(column, block)
@@ -135,7 +180,7 @@ function Game:insertBlock(column, block)
 	if columnHeight + blockHeight > 17 then
 		return false
 	end
-	table.insert(c, block)
+	table.insert(c, 1, block)
 	return true
 end
 
@@ -371,7 +416,6 @@ function Game:getContiguous( n )
 
 	contiguous = temp
 
-	print("number of contiguous sets", #contiguous)
 	for k, t in pairs(contiguous) do
 		for k2, b in pairs(t) do
 		end
@@ -441,18 +485,58 @@ function Game:draw()
 
 end
 
+function Game:actualSwitch(a, b)
+	local aColumn = nil
+	local bColumn = nil
+	local aIndex = nil
+	local bIndex = nil
+	for _, column in ipairs(self.columns) do
+		for k, block in ipairs(column) do
+			if block == a then
+				aColumn = column
+				aIndex = k
+			elseif block == b then
+				bColumn = column
+				bIndex = k
+			end
+		end
+	end
+	local tmp = b
+	bColumn[bIndex] = a
+	aColumn[aIndex] = tmp
+	self.movesLeft = self.movesLeft - 1
+end
+
+function Game:switchBlocks(a, b)
+	local x1, y1 = self:getLocation(a)
+	local x2, y2 = self:getLocation(b)
+	if y1 == y2 and a.half == b.half then
+		if x1 == x2 - 1 then
+			a.xOffset = -44
+			b.xOffset = 44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		elseif x1 == x2 + 1 then
+			a.xOffset = 44
+			b.xOffset = -44
+			self.waitingOnPlayer = false
+			self:actualSwitch(a, b)
+		end
+	end
+end
+
 function Game:mouseClicked(x, y)
 	if self.waitingOnPlayer then
 		local x, y = self:convertScreenPosition(x, y)
-		print(x, y)
 		local block = self:getBlock(x, y)
-		print (block)
 		if block ~= nil then
 			if self.blockSelected == nil then
 				self.blockSelected = block
 				block.selected = true
 			else
-				-- SWATCH
+				self:switchBlocks(self.blockSelected, block)
+				self.blockSelected.selected = false
+				self.blockSelected = nil
 			end
 		end
 	end
