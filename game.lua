@@ -78,9 +78,11 @@ Game = class("Game")
 function Game:initialize()
 	self.minContiguous = 4
 	self.maxMoves = 5
+	self.scoreCounter = scorecounter.ScoreCounter()
 end
 
 function Game:reinitialize()
+	self.scoreCounter:reset()
 	math.randomseed(os.time())
 	self.movesLeft = self.maxMoves
 	self.columns = {}
@@ -117,6 +119,7 @@ function Game:reinitialize()
 end
 
 function Game:update(dt) 
+	print(self.scoreCounter:getScore())
 	if not self.waitingOnPlayer then
 		for k,column in ipairs(self.columns) do
 			for n, block in ipairs(column) do
@@ -158,6 +161,7 @@ function Game:gameLogicIterate()
 		local destroyedAny = false
 		if #cont > 0 then destroyedAny = true end
 		for _,group in pairs(cont) do
+			self.scoreCounter:clearSet(#group)
 			for k, block in pairs(group) do
 				self:destroyBlock(block)
 			end
@@ -574,6 +578,7 @@ function Game:actualSwitch(a, b)
 	bColumn[bIndex] = a
 	aColumn[aIndex] = tmp
 	self.movesLeft = self.movesLeft - 1
+	self.scoreCounter:swap()
 end
 
 function Game:switchBlocks(a, b)

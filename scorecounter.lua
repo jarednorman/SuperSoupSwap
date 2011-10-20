@@ -20,7 +20,7 @@ end
 
 function ScoreCounter:swap()
 	-- This should be called every time the player swaps tiles, to clear combo calculations
-	self.combo = 0
+	self.combo = 1
 end
 
 function ScoreCounter:clearSet(n)
