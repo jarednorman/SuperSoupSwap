@@ -163,18 +163,28 @@ function Game:gameLogicIterate()
 		if not destroyedAny then
 			self.waitingOnPlayer = true
 			local emptyColumns = {}
+			local foundEmptyColumns = false
+			local needSwappery = false
 			for k,column in ipairs(self.columns) do
 				if #column == 0 then
 					table.insert(emptyColumns, k)
+					foundEmptyColumns = true
+				elseif foundEmptyColumns and #column ~= 0 then
+					needSwappery = true
 				end
 			end
 
-			if #emptyColumns ~= 0 then
+			if needSwappery then
 				self.waitingOnPlayer = false
 				local emptyColumnCount = #emptyColumns
-				while emptyColumnCount > 0 do
+				
+				for k,c in ipairs(emptyColumns) do
+					local z = table.remove(self.columns, c)
+					table.insert(self.columns, z)
 					emptyColumnCount = emptyColumnCount - 1
+					break
 				end
+
 			elseif self.movesLeft == 0 then
 				self.waitingOnPlayer = false
 				self:addRow()
