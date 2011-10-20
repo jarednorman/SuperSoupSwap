@@ -1,5 +1,7 @@
 module(..., package.seeall)
 
+require 'scorecounter'
+
 Block = class("Block")
 
 function Block:initialize(colour, half)
