@@ -7,10 +7,12 @@ function Block:initialize(colour, half)
 	loadImage('peaches.png')
 	loadImage('mushroom.png')
 	loadImage('tomato.png')
+	loadImage('purps.png')
 	loadImage('bluehalf.png')
 	loadImage('peacheshalf.png')
 	loadImage('mushroomhalf.png')
 	loadImage('tomatohalf.png')
+	loadImage('purpshalf.png')
 	self.colour = colour
 	self.half = half
 	self.selected = false
@@ -41,6 +43,8 @@ function Block:update(dt)
 	local xOffsetSpeed = 0.9
 	local yOffsetSpeed = 0.9
 	if self.state == "switching" then
+		xOffsetSpeed = 0.7
+		yOffsetSpeed = 0.7
 	elseif self.state == "raising" then
 		yOffsetSpeed = 0.94
 	elseif self.state == "falling" then
@@ -83,7 +87,7 @@ function Game:reinitialize()
 	end
 	-- POPULATE --
 	local initialBlockCount = 50
-	self.colours = {'tomato', 'peaches', 'blue', 'mushroom'}
+	self.colours = {'tomato', 'peaches', 'blue', 'mushroom', 'purps'}
 	self.haff = {'','half'}
 	local n = 0
 	while n < initialBlockCount do
@@ -158,7 +162,20 @@ function Game:gameLogicIterate()
 		end
 		if not destroyedAny then
 			self.waitingOnPlayer = true
-			if self.movesLeft == 0 then
+			local emptyColumns = {}
+			for k,column in ipairs(self.columns) do
+				if #column == 0 then
+					table.insert(emptyColumns, k)
+				end
+			end
+
+			if #emptyColumns ~= 0 then
+				self.waitingOnPlayer = false
+				local emptyColumnCount = #emptyColumns
+				while emptyColumnCount > 0 do
+					emptyColumnCount = emptyColumnCount - 1
+				end
+			elseif self.movesLeft == 0 then
 				self.waitingOnPlayer = false
 				self:addRow()
 				self.movesLeft = self.maxMoves
