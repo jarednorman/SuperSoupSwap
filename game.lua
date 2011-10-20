@@ -581,23 +581,23 @@ function Game:switchBlocks(a, b)
 		end
 
 	elseif x1 == x2 and a.half == b.half then
-		if y1 == y2 - 1 then
+		if y1 == y2 - 1 and a.half == 'half' then
 			a.yOffset = 44
 			b.yOffset = -44
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
-		elseif y1 == y2 + 1 then
+		elseif y1 == y2 + 1 and a.half == 'half' then
 			a.yOffset = -44
 			b.yOffset = 44
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
 		end
-		if y1 == y2 - 2 then
+		if y1 == y2 - 2 and a.half == '' then
 			a.yOffset = 88
 			b.yOffset = -88
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
-		elseif y1 == y2 + 2 then
+		elseif y1 == y2 + 2 and a.half == '' then
 			a.yOffset = -88
 			b.yOffset = 88
 			self.waitingOnPlayer = false
