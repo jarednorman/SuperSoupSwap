@@ -1,5 +1,7 @@
 module(..., package.seeall)
 
+require 'scorecounter'
+
 Block = class("Block")
 
 function Block:initialize(colour, half)
@@ -7,10 +9,12 @@ function Block:initialize(colour, half)
 	loadImage('peaches.png')
 	loadImage('mushroom.png')
 	loadImage('tomato.png')
+	loadImage('purps.png')
 	loadImage('bluehalf.png')
 	loadImage('peacheshalf.png')
 	loadImage('mushroomhalf.png')
 	loadImage('tomatohalf.png')
+	loadImage('purpshalf.png')
 	self.colour = colour
 	self.half = half
 	self.selected = false
@@ -41,6 +45,8 @@ function Block:update(dt)
 	local xOffsetSpeed = 0.9
 	local yOffsetSpeed = 0.9
 	if self.state == "switching" then
+		xOffsetSpeed = 0.7
+		yOffsetSpeed = 0.7
 	elseif self.state == "raising" then
 		yOffsetSpeed = 0.94
 	elseif self.state == "falling" then
@@ -72,9 +78,11 @@ Game = class("Game")
 function Game:initialize()
 	self.minContiguous = 4
 	self.maxMoves = 5
+	self.scoreCounter = scorecounter.ScoreCounter()
 end
 
 function Game:reinitialize()
+	self.scoreCounter:reset()
 	math.randomseed(os.time())
 	self.movesLeft = self.maxMoves
 	self.columns = {}
@@ -83,7 +91,7 @@ function Game:reinitialize()
 	end
 	-- POPULATE --
 	local initialBlockCount = 50
-	self.colours = {'tomato', 'peaches', 'blue', 'mushroom'}
+	self.colours = {'tomato', 'peaches', 'blue', 'mushroom', 'purps'}
 	self.haff = {'','half'}
 	local n = 0
 	while n < initialBlockCount do
@@ -111,6 +119,7 @@ function Game:reinitialize()
 end
 
 function Game:update(dt) 
+	print(self.scoreCounter:getScore())
 	if not self.waitingOnPlayer then
 		for k,column in ipairs(self.columns) do
 			for n, block in ipairs(column) do
@@ -152,13 +161,37 @@ function Game:gameLogicIterate()
 		local destroyedAny = false
 		if #cont > 0 then destroyedAny = true end
 		for _,group in pairs(cont) do
+			self.scoreCounter:clearSet(#group)
 			for k, block in pairs(group) do
 				self:destroyBlock(block)
 			end
 		end
 		if not destroyedAny then
 			self.waitingOnPlayer = true
-			if self.movesLeft == 0 then
+			local emptyColumns = {}
+			local foundEmptyColumns = false
+			local needSwappery = false
+			for k,column in ipairs(self.columns) do
+				if #column == 0 then
+					table.insert(emptyColumns, k)
+					foundEmptyColumns = true
+				elseif foundEmptyColumns and #column ~= 0 then
+					needSwappery = true
+				end
+			end
+
+			if needSwappery then
+				self.waitingOnPlayer = false
+				local emptyColumnCount = #emptyColumns
+				
+				for k,c in ipairs(emptyColumns) do
+					local z = table.remove(self.columns, c)
+					table.insert(self.columns, z)
+					emptyColumnCount = emptyColumnCount - 1
+					break
+				end
+
+			elseif self.movesLeft == 0 then
 				self.waitingOnPlayer = false
 				self:addRow()
 				self.movesLeft = self.maxMoves
@@ -545,6 +578,7 @@ function Game:actualSwitch(a, b)
 	bColumn[bIndex] = a
 	aColumn[aIndex] = tmp
 	self.movesLeft = self.movesLeft - 1
+	self.scoreCounter:swap()
 end
 
 function Game:switchBlocks(a, b)
@@ -564,23 +598,23 @@ function Game:switchBlocks(a, b)
 		end
 
 	elseif x1 == x2 and a.half == b.half then
-		if y1 == y2 - 1 then
+		if y1 == y2 - 1 and a.half == 'half' then
 			a.yOffset = 44
 			b.yOffset = -44
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
-		elseif y1 == y2 + 1 then
+		elseif y1 == y2 + 1 and a.half == 'half' then
 			a.yOffset = -44
 			b.yOffset = 44
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
 		end
-		if y1 == y2 - 2 then
+		if y1 == y2 - 2 and a.half == '' then
 			a.yOffset = 88
 			b.yOffset = -88
 			self.waitingOnPlayer = false
 			self:actualSwitch(a, b)
-		elseif y1 == y2 + 2 then
+		elseif y1 == y2 + 2 and a.half == '' then
 			a.yOffset = -88
 			b.yOffset = 88
 			self.waitingOnPlayer = false
